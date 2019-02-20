@@ -46,8 +46,8 @@ spring:
       server:
         fail-fast: true
         native:
-          #should be have this directory and files
-#          search-locations: file:///D:/code/demo/config-server/target/config-repo
+          #should be sure have this directory and files
+          search-locations: file:///D:/code/demo/config-server/target/config-repo
 #          search-locations: file:///data/config/demo/config-server/config-repo
 #          search-locations: classpath:config-repo/
           addLabelLocations: true
