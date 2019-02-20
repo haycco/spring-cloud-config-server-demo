@@ -1,0 +1,91 @@
+server:
+  port: 8888
+  undertow:
+    buffer-size: 1024
+    direct-buffers: true
+    io-threads: 16
+    worker-threads: 256
+
+spring:
+  application:
+    name: @project.parent.artifactId@-@project.artifactId@
+  profiles:
+    active: native,@profile.env@
+  http:
+    encoding:
+      charset: UTF-8
+      force: true
+      enabled: true
+  security:
+    user:
+      name: admin
+      password: ${CONFIG_SERVER_PASSWORD:admin}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+#info
+info:
+  version: @project.version@
+  formatter-version: v@project.version@
+  app:
+    name:  @project.parent.artifactId@-@project.artifactId@
+    description: @project.description@
+  build:
+    timestamp: @timestamp@
+
+logging.level.org.springframework.core.env: DEBUG
+
+---
+spring:
+  profiles: native,dev
+  cloud:
+    config:
+      server:
+        fail-fast: true
+        native:
+          #should be have this directory and files
+#          search-locations: file:///D:/code/demo/config-server/target/config-repo
+#          search-locations: file:///data/config/demo/config-server/config-repo
+#          search-locations: classpath:config-repo/
+          addLabelLocations: true
+          default-label: @profile.env@
+
+eureka:
+  instance:
+    prefer-ip-address: true
+    metadata-map:
+      user.name: ${spring.security.user.name}
+      user.password: ${spring.security.user.password}
+    lease-expiration-duration-in-seconds: 15
+    lease-renewal-interval-in-seconds: 5
+  client:
+    registry-fetch-interval-seconds: 5
+    service-url:
+      defaultZone: http://${spring.security.user.name}:${spring.security.user.password}@localhost:8761/eureka/
+
+---
+spring:
+  profiles: native,test
+  cloud:
+    config:
+      server:
+        fail-fast: true
+        native:
+          search-locations: file:///data/config/demo/config-server/config-repo
+          addLabelLocations: true
+          default-label: @profile.env@
+
+eureka:
+  instance:
+    metadata-map:
+      user.name: ${spring.security.user.name}
+      user.password: ${spring.security.user.password}
+    lease-expiration-duration-in-seconds: 15
+    lease-renewal-interval-in-seconds: 5
+  client:
+    registry-fetch-interval-seconds: 5
+    service-url:
+      defaultZone: ${eureka.client.service-url.defaultZone}
